@@ -14,8 +14,16 @@ algorithms for the analysis and synthesis of DESs.
 The core library sources are provided for free under conditions of the GNU Lesser 
 General Public License.  Different terms may apply to libFAUDES plug-ins.
 
-
-
+## Usage
+This library is used for the implementation of Changming Yang's Master Thesis 
+on the topic "Effective Control synthesis of Omega-language under partial Observation",
+With the correct environment, you can easily compile with 
+```bash
+make dist-clean
+make configure
+make -j20
+make -j20 turoeial 
+```bash
 
 ## Documentation
 
@@ -31,19 +39,6 @@ https://fgdes.tf.fau.de/download.html
 If you want to build your own, see the build process documentation
 
 https://fgdes.tf.fau.de/faudes/faudes_build.html
-
-
-## Versioning/Branching
-
-Originally, libFAUDES was designed for joint development by its compile-time plug-in
-machanism ... quite some time before Git existed. At the current stage, we
-use the main branch of this repository for our development process. In modern terminology
-this translates to <i>testing</i> and we would not even bother to update the
-version number (as specified in the file `VERSION`). Thus, if you are looking for a stable
-code base for your project, please consult our web site. If on the other hand you plan to contribute to libFAUDES
-via GitHub, you will most definitely want to instantiate you personal branch. And: please
-let us know, so we can focus our efforts.
-
 
 
 
