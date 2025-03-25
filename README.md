@@ -23,7 +23,7 @@ make dist-clean
 make configure
 make -j20
 make -j20 turoeial 
-```bash
+```
 
 ## Documentation
 
