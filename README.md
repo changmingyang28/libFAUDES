@@ -22,7 +22,7 @@ With the correct environment, you can easily compile with
 make dist-clean
 make configure
 make -j20
-make -j20 turoeial 
+make -j20 tutorial 
 ```
 
 ## Documentation
