@@ -15,7 +15,7 @@ The core library sources are provided for free under conditions of the GNU Lesse
 General Public License.  Different terms may apply to libFAUDES plug-ins.
 
 ## Usage
-This library is used for the implementation of Changming Yang's Master Thesis 
+This fork is used for the implementation of Changming Yang's Master Thesis 
 on the topic "Effective Control synthesis of Omega-language under partial Observation",
 With the correct environment, you can easily compile with 
 ```bash
