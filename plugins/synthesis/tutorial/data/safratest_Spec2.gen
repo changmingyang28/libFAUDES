@@ -1,0 +1,29 @@
+<Generator>
+"two place buffer"
+
+<Alphabet>
+"a" "b"
+</Alphabet>
+
+<States>
+"E" "F"
+</States>
+
+<TransRel>
+"E" "a"  "F"
+"E" "a"  "E"
+"F" "b" "E"
+
+</TransRel>
+
+<InitStates>
+"E"
+</InitStates>
+
+<MarkedStates>
+"E" 
+</MarkedStates>
+
+
+</Generator>
+

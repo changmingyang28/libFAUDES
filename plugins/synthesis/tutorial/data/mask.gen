@@ -1,0 +1,33 @@
+<Generator>
+"Observation Mask"
+
+<Alphabet>
+"alpha_1" +C+ "beta_1" "alpha_2" +C+ "beta_2"
+</Alphabet>
+
+<States>
+"M0" "M1" 
+</States>
+
+<TransRel>
+"M0"  "alpha_1"  "M1"
+"M0"  "alpha_2"  "M1"
+"M0"  "beta_1"   "M0"
+"M0"  "beta_2"   "M0"
+"M1"  "alpha_1"  "M1"
+"M1"  "alpha_2"  "M1"
+"M1"  "beta_1"   "M0"
+"M1"  "beta_2"   "M0"
+</TransRel>
+
+<InitStates>
+"M0"
+</InitStates>
+
+<MooreOutput>
+"M0"  "ε"
+"M1"  "obs_alpha"
+</MooreOutput>
+
+</Generator>
+

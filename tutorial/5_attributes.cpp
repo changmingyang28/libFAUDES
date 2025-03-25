@@ -54,7 +54,7 @@ int main() {
 
   // set a flag: alternatively, use generator method 
   // note that even if the attrute became the default attribute, memory is allocated
-  fg1.EventAttributep(1)->Set(0x00000f000);
+  fg1.EventAttributep(1)->Set(0x0000000f000);
 
   // get a flag: use generator method
   AttributeFlags bflag= fg1.EventAttribute(1); 

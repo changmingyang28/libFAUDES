@@ -56,7 +56,7 @@ int main() {
 
   // Read specification 
   Generator specification;
-  specification.Read("data/buffer.gen");
+  specification.Read("data/buffer2.gen");
   InvProject(specification,cplant.Alphabet()); 
   specification.Name("simple machines specification");
 

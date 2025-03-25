@@ -11,8 +11,8 @@
 </States>
 
 <TransRel>
-"E" "beta_1" "F"
-"F" "alpha_2" "E"
+"E" "b1" "F"
+"F" "a2" "E"
 </TransRel>
 
 <InitStates>

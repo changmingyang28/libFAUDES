@@ -23,6 +23,9 @@ Includes all header files of the synthesis plug-in.
 #include "syn_supreduce.h"
 #include "syn_synthequiv.h"
 #include "syn_compsyn.h"
+//#include "syn_ecpo.h"
+//#include "safra.h"
+//#include "syn_rabinproduct.h"
 
 #endif
 

@@ -1,0 +1,42 @@
+<Generator name="simple machines specification (Rabin)">
+
+% 
+%  Statistics for simple machines specification (Rabin)
+% 
+%  States:        3
+%  Init/Marked:   1/2
+%  Events:        2
+%  Transitions:   4
+%  StateSymbols:  3
+%  Attrib. E/S/T: 0/0/0
+% 
+
+<Alphabet>
+alpha_2       beta_1       
+</Alphabet>
+
+<States>
+E             F1            F2           
+</States>
+
+<TransRel>
+E             beta_1        F1           
+F1            alpha_2       E            
+F1            beta_1        F2           
+F2            alpha_2       F1           
+</TransRel>
+
+<InitStates>
+E            
+</InitStates>
+
+<MarkedStates>
+E             F1           
+</MarkedStates>
+
+
+</Generator>
+<RabinPairs>
+RrejectSet=F2 
+ "AcceptSet=E  F1" 
+</RabinPairs>

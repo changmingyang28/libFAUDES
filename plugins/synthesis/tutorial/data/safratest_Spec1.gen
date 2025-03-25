@@ -1,0 +1,27 @@
+<Generator>
+
+<Alphabet>
+"a" "b"
+</Alphabet>
+
+<States>
+"E" "F1"
+</States>
+
+<TransRel>
+"E" "b"  "F1"
+"E" "a"  "E"
+"F1" "b"  "E"
+"F1" "a" "F1"
+</TransRel>
+
+<InitStates>
+"E"
+</InitStates>
+
+<MarkedStates>
+"E" 
+</MarkedStates>
+
+
+</Generator>

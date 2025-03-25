@@ -1,0 +1,32 @@
+<Generator>
+"simplify model of the simplemachine || simplemachine"
+<Alphabet>
+"a" "b" 
+</Alphabet>
+
+<States>
+"q0" "q1" "q2"
+</States>
+
+<TransRel>
+"q0" "b"  "q1"
+"q0" "a"  "q2"
+"q1" "b"  "q1"
+"q1" "a"  "q1"
+"q2" "b"  "q2"
+"q2" "a"  "q2"
+"q0" "a"  "q0"
+
+
+</TransRel>
+
+<InitStates>
+"q0"
+</InitStates>
+
+<MarkedStates>
+"q0" 
+</MarkedStates>
+
+
+</Generator>

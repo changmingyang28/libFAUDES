@@ -1,0 +1,71 @@
+<Generator>
+SimpleBuechi 
+
+% 
+%  Statistics for SimpleBuechi
+% 
+%  States:        3
+%  Init/Marked:   1/2
+%  Events:        2
+%  Transitions:   5
+%  StateSymbols:  3
+%  Attrib. E/S/T: 0/0/0
+% 
+
+<Alphabet>
+alpha_2#1     beta_1#2     
+</Alphabet>
+
+<States>
+E#1           F1#2          F2#3         
+</States>
+
+<TransRel>
+E[1]          beta_1[2]     F1[2]        
+E[1]          beta_1[2]     F2[3]        
+F1[2]         alpha_2[1]    E[1]         
+F1[2]         beta_1[2]     F2[3]        
+F2[3]         alpha_2[1]    F1[2]        
+</TransRel>
+
+<InitStates>
+E#1          
+</InitStates>
+
+<MarkedStates>
+E#1           F1#2         
+</MarkedStates>
+
+
+</Generator>
+
+# Rabin Automaton from SafraDet:
+<Generator name="SafraDet(SimpleBuechi)">
+
+% 
+%  Statistics for SafraDet(SimpleBuechi)
+% 
+%  States:        1
+%  Init/Marked:   1/0
+%  Events:        2
+%  Transitions:   0
+%  StateSymbols:  1
+%  Attrib. E/S/T: 0/0/0
+% 
+
+<Alphabet>
+alpha_2       beta_1       
+</Alphabet>
+
+<States>
+S0           
+</States>
+
+<TransRel/>
+<InitStates>
+S0           
+</InitStates>
+
+<MarkedStates/>
+
+</Generator>
