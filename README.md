@@ -27,10 +27,9 @@ make -j20 tutorial
 The implemented files are in the folder .../libfaudes/plugins/synthesis,
 at present, you can go to the folder .../tutorial and run
 ```
-cd .../libfaudes/plugins/synthesis/tutorial
 ./syn_10_test2
 ```
-Alternative, output a log:
+Alternatively, output a log:
 ```
 ./syn_10_test2 >output.log
 ```
