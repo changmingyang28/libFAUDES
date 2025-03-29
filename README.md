@@ -17,7 +17,7 @@ General Public License.  Different terms may apply to libFAUDES plug-ins.
 ## Usage
 This fork is used for the implementation of Changming Yang's Master Thesis 
 on the topic "Effective Control synthesis of Omega-language under partial Observation",
-With the correct environment, you can easily compile with 
+With a correct environment, you can easily compile with 
 ```bash
 make dist-clean
 make configure
@@ -25,7 +25,7 @@ make -j20
 make -j20 tutorial 
 ```
 The implemented files are in the folder .../libfaudes/plugins/synthesis,
-at present, you can go to the folder .../tutorial and run
+At present, you can go to the folder .../tutorial and run
 ```
 ./syn_10_test2
 ```
