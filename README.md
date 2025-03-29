@@ -37,9 +37,6 @@ Alternatively, output a log:
 ## Documentation
 
 The Documentation of my work is accessible via .../libfaudes/plugins/synthesis/documentation/docu.pdf.
-The general Documentation of libFAUDES :
-https://fgdes.tf.fau.de/faudes/index.html
-
 
 
 ## Authors/Copyright
