@@ -24,15 +24,20 @@ make configure
 make -j20
 make -j20 tutorial 
 ```
-The implemented files are in the folder .../libfaudes/plugins/synthesis ,
-at present you can go to the folder /tutorial , and run
+The implemented files are in the folder .../libfaudes/plugins/synthesis,
+at present, you can go to the folder .../tutorial and run
 ```
+cd .../libfaudes/plugins/synthesis/tutorial
 ./syn_10_test2
+```
+Alternative, output a log:
+```
+./syn_10_test2 >output.log
 ```
 
 ## Documentation
 
-The Documentationof my work is accecable via .../libfaudes/plugins/synthesis/documentation/docu.pdf,
+The Documentation of my work is accessible via .../libfaudes/plugins/synthesis/documentation/docu.pdf.
 The general Documentation of libFAUDES :
 https://fgdes.tf.fau.de/faudes/index.html
 
