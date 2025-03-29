@@ -27,7 +27,7 @@ make -j20 tutorial
 The implemented files are in the folder .../libfaudes/plugins/synthesis ,
 at present you can go to the folder /tutorial , and run
 ```
-./syn_8_ecpo
+./syn_10_test2
 ```
 
 ## Documentation
