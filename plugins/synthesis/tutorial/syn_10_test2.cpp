@@ -236,47 +236,41 @@ void ProductRabinPair(const Generator& rPlant, const Generator& rSpec,
   Generator& GC) {
 std::cout << "Debug: Starting ProductRabinPair with provided composition map" << std::endl;
 
-// 1. 获取 RabinPairs 属性
 AttributeRabinPairs plantRabinPairs = GetRabinPairsAttribute(rPlant);
 AttributeRabinPairs specRabinPairs = GetRabinPairsAttribute(rSpec);
 
 std::cout << "Debug: Plant has " << plantRabinPairs.Size() << " RabinPairs" << std::endl;
 std::cout << "Debug: Spec has " << specRabinPairs.Size() << " RabinPairs" << std::endl;
 
-// 创建新的 RabinPairs 属性
 AttributeRabinPairs productRabinPairs;
 
-// 如果两者都没有 Rabin 对，则直接返回
 if(plantRabinPairs.Size() == 0 && specRabinPairs.Size() == 0) {
 std::cout << "Debug: No Rabin pairs in both generators, nothing to do." << std::endl;
 return;
 }
 
-// 2. 为每一对 Rabin 对创建乘积
 for(Idx i = 0; i < std::max(plantRabinPairs.Size(), (Idx)1); ++i) {
 for(Idx j = 0; j < std::max(specRabinPairs.Size(), (Idx)1); ++j) {
 StateSet newR, newI;
 
-// 遍历组合映射
 for(auto& entry : rCompositionMap) {
 Idx plantState = entry.first.first;
 Idx specState = entry.first.second;
 Idx productState = entry.second;
 
-// 按 Rabin 对定义检查是否属于 R 集合：R = R1 × X2 ∪ X1 × R2
+// R = R1 × X2 ∪ X1 × R2
 if((i < plantRabinPairs.Size() && plantRabinPairs.RSet(i).Exists(plantState)) ||
 (j < specRabinPairs.Size() && specRabinPairs.RSet(j).Exists(specState))) {
 newR.Insert(productState);
 }
 
-// 按 Rabin 对定义检查是否属于 I 集合：I = I1 × X2 ∪ X1 × I2
+// I = I1 × X2 ∪ X1 × I2
 if((i < plantRabinPairs.Size() && plantRabinPairs.ISet(i).Exists(plantState)) ||
 (j < specRabinPairs.Size() && specRabinPairs.ISet(j).Exists(specState))) {
 newI.Insert(productState);
 }
 }
 
-// 如果 R 或 I 非空，添加新的 Rabin 对
 if(!newR.Empty() || !newI.Empty()) {
 std::cout << "Debug: Adding new Rabin pair with " 
 << newR.Size() << " states in R and " 
@@ -286,12 +280,11 @@ productRabinPairs.AddRabinPair(newR, newI);
 }
 }
 
-// 3. 设置产品 RabinPairs 属性
 std::cout << "Debug: Created product with " << productRabinPairs.Size() 
 << " RabinPairs" << std::endl;
 SetRabinPairsAttribute(GC, productRabinPairs);
 
-// 验证设置是否成功
+//DEBUG
 AttributeRabinPairs gcRabinPairs = GetRabinPairsAttribute(GC);
 std::cout << "Debug: After setting, GC has " << gcRabinPairs.Size() 
 << " RabinPairs" << std::endl;
@@ -300,16 +293,14 @@ std::cout << "Debug: After setting, GC has " << gcRabinPairs.Size()
 void RabinProjectNonDet(const Generator& rGen, const EventSet& rProjectAlphabet, Generator& rResGen) {
   std::cout << "Debug: Starting RabinProjectNonDet" << std::endl;
   
-  // 如果 rResGen 不是 rGen，则先复制
   if(&rResGen != &rGen) {
     rResGen.Assign(rGen);
   }
   
-  // 获取输入生成器的 RabinPairs 属性
   AttributeRabinPairs inputRabinPairs = GetRabinPairsAttribute(rGen);
   std::cout << "Debug: Input generator has " << inputRabinPairs.Size() << " RabinPairs" << std::endl;
   
-  // HELPERS:
+
   std::stack<Idx> todod, todor; // states todo 
   StateSet doned, doner;        // states done (aka have been put to todo) 
   Idx currentstate;             // the currently processed state
@@ -317,33 +308,28 @@ void RabinProjectNonDet(const Generator& rGen, const EventSet& rProjectAlphabet,
   StateSet::Iterator sit_end;
   TransSet::Iterator tit;
   TransSet::Iterator tit_end;
-  
-  // 构建状态映射，用于追踪投影前后的状态对应关系
+
   std::map<Idx, StateSet> stateMapping;
   
-  // 初始化 todo 栈，添加初始状态
+  // initialise todo stack
   for(sit = rResGen.InitStatesBegin(); sit != rResGen.InitStatesEnd(); ++sit) {
     todod.push(*sit);
     doned.Insert(*sit);
     
-    // 初始化状态映射
+  // initialise mapping
     StateSet initialMapping;
     initialMapping.Insert(*sit);
     stateMapping[*sit] = initialMapping;
   }
   
-  // 处理主 todo 栈
   while(!todod.empty()) {
-    // 进度回调
     FD_WPC(doned.Size() - todod.size(), rResGen.Size(), "RabinProjectNonDet(): done/size: " 
            << doned.Size() - todod.size() << " / " << rResGen.Size());
     
-    // 获取栈顶元素
     currentstate = todod.top();
     todod.pop();
     std::cout << "Debug: Processing state: " << rResGen.SStr(currentstate) << std::endl;
     
-    // 本地可达性分析
     todor.push(currentstate);
     doner.Clear();
     doner.Insert(currentstate);
@@ -353,20 +339,16 @@ void RabinProjectNonDet(const Generator& rGen, const EventSet& rProjectAlphabet,
       todor.pop();
       std::cout << "Debug: Reach state: " << rResGen.SStr(reachstate) << std::endl;
       
-      // 检查标记状态
       marked |= rResGen.ExistsMarkedState(reachstate);
       
-      // 遍历后继状态
       tit = rResGen.TransRelBegin(reachstate);
       tit_end = rResGen.TransRelEnd();
       for(; tit != tit_end; ++tit) {
         if(tit->X1 != reachstate) break;
         
-        // 处理可见事件：添加新转移，将目标状态添加到主 todo 栈
         if(rProjectAlphabet.Exists(tit->Ev)) {
           rResGen.SetTransition(currentstate, tit->Ev, tit->X2);
           
-          // 更新状态映射：将 reachstate 可达的状态添加到 currentstate 的映射中
           if(stateMapping.find(tit->X2) == stateMapping.end()) {
             StateSet newMapping;
             newMapping.Insert(tit->X2);
@@ -378,9 +360,7 @@ void RabinProjectNonDet(const Generator& rGen, const EventSet& rProjectAlphabet,
             todod.push(tit->X2);
           }
         } 
-        // 处理不可见事件：添加到本地可达分析的 todo 栈
         else {
-          // 更新映射：将 tit->X2 添加到 currentstate 的映射中
           stateMapping[currentstate].Insert(tit->X2);
           
           if(doner.Insert(tit->X2)) {
@@ -388,12 +368,11 @@ void RabinProjectNonDet(const Generator& rGen, const EventSet& rProjectAlphabet,
           }
         }
       }
-    } // 本地可达分析循环结束
-    
-    // 设置标记状态
+    }
+
     if(marked) rResGen.SetMarkedState(currentstate);
     
-    // 删除所有从当前状态出发的不可见事件转移
+
     tit = rResGen.TransRelBegin(currentstate);
     tit_end = rResGen.TransRelEnd();
     while(tit != tit_end) {
@@ -406,23 +385,19 @@ void RabinProjectNonDet(const Generator& rGen, const EventSet& rProjectAlphabet,
         ++tit;
       }
     }
-  } // 主循环结束
+  } 
   
-  // 创建新的 Rabin 对
   AttributeRabinPairs outputRabinPairs;
-  
-  // 处理输入生成器的每个 Rabin 对
+
   for(Idx i = 0; i < inputRabinPairs.Size(); ++i) {
     StateSet newR, newI;
     const StateSet& oldR = inputRabinPairs.RSet(i);
     const StateSet& oldI = inputRabinPairs.ISet(i);
     
-    // 针对保留下来的每个状态，检查它是否由原来的 R 和 I 集合中的状态可达
     for(std::map<Idx, StateSet>::iterator mapIt = stateMapping.begin(); mapIt != stateMapping.end(); ++mapIt) {
       Idx newState = mapIt->first;
       const StateSet& oldStates = mapIt->second;
       
-      // 检查是否有任何一个原始状态在 R 集合中
       for(StateSet::Iterator oldIt = oldStates.Begin(); oldIt != oldStates.End(); ++oldIt) {
         if(oldR.Exists(*oldIt)) {
           newR.Insert(newState);
@@ -430,7 +405,6 @@ void RabinProjectNonDet(const Generator& rGen, const EventSet& rProjectAlphabet,
         }
       }
       
-      // 检查是否有任何一个原始状态在 I 集合中
       for(StateSet::Iterator oldIt = oldStates.Begin(); oldIt != oldStates.End(); ++oldIt) {
         if(oldI.Exists(*oldIt)) {
           newI.Insert(newState);
@@ -439,7 +413,6 @@ void RabinProjectNonDet(const Generator& rGen, const EventSet& rProjectAlphabet,
       }
     }
     
-    // 添加新的 Rabin 对
     if(!newR.Empty() || !newI.Empty()) {
       std::cout << "Debug: Adding new Rabin pair with " 
                 << newR.Size() << " states in R and " 
@@ -447,17 +420,13 @@ void RabinProjectNonDet(const Generator& rGen, const EventSet& rProjectAlphabet,
       outputRabinPairs.AddRabinPair(newR, newI);
     }
   }
-  
-  // 设置结果生成器的 Rabin 对属性
+
   SetRabinPairsAttribute(rResGen, outputRabinPairs);
   
-  // 限制字母表，保留属性
   rResGen.RestrictAlphabet(rProjectAlphabet);
   
-  // 限制状态集，保留可达状态
   rResGen.RestrictStates(doned);
   
-  // 设置名称
   rResGen.Name(CollapsString("RabinProjectNonDet(" + rGen.Name() + ")"));
   
   std::cout << "Debug: RabinProjectNonDet completed with " 
