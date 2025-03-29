@@ -46,10 +46,10 @@
         Token pairToken;
         pairToken.SetBegin("Pair");
         pairToken.InsAttributeInteger("index", i);
-        rTw.WriteBegin("RSet"); 
+        rTw.WriteBegin("RSet"); // 拒绝集在前
         mRabinPairs[i].first.Write(rTw);
         rTw.WriteEnd("RSet");
-        rTw.WriteBegin("ISet"); 
+        rTw.WriteBegin("ISet"); // 接受集在后
         mRabinPairs[i].second.Write(rTw);
         rTw.WriteEnd("ISet");
         rTw.WriteEnd("Pair");
@@ -337,14 +337,13 @@ FAUDES_TYPE_IMPLEMENTATION(RabinPair, AttributeRabinPairs, AttributeVoid)
 
 void RabinProjectND(const MyRabinGenerator& rGen, const EventSet& rObsEvents, MyRabinGenerator& rResGen) {
   FD_DF("RabinProjectND(" << rGen.Name() << ", obsEvents, " << rResGen.Name() << ")");
-  MyRabinGenerator* pResGen = &rResGen;
+  Generator* pResGen = &rResGen;
   if (&rResGen == &rGen) {
-    pResGen = new MyRabinGenerator();
+    pResGen = new Generator();
   }
   pResGen->Clear();
   pResGen->Name(CollapsString("ProjND(" + rGen.Name() + ")"));
 
-  // 确定可观测和不可观测事件
   std::map<std::string, std::string> eventBaseMap;
   EventSet newAlphabet;
   EventSet epsilonEvents;
@@ -363,7 +362,13 @@ void RabinProjectND(const MyRabinGenerator& rGen, const EventSet& rObsEvents, My
   }
   pResGen->InjectAlphabet(newAlphabet);
 
-  // 计算epsilon闭包的辅助函数
+  std::map<Idx, Idx> stateMap;
+  for (StateSet::Iterator sit = rGen.StatesBegin(); sit != rGen.StatesEnd(); ++sit) {
+    Idx newState = pResGen->InsState();
+    stateMap[*sit] = newState;
+    pResGen->StateName(newState, rGen.StateName(*sit));
+  }
+
   auto computeEpsilonClosure = [&rGen, &epsilonEvents](Idx startState, StateSet& closure) {
     std::stack<Idx> epsilonStack;
     StateSet visited;
@@ -382,135 +387,42 @@ void RabinProjectND(const MyRabinGenerator& rGen, const EventSet& rObsEvents, My
     }
   };
 
-  // 缓存所有可能的epsilon闭包
-  std::map<StateSet, Idx> closureToStateMap;
-  int stateCounter = 1; // 从1开始为新状态编号
-  
-  // 首先处理初始状态的epsilon闭包
-  StateSet initialClosure;
+  StateSet initClosure;
   for (StateSet::Iterator sit = rGen.InitStatesBegin(); sit != rGen.InitStatesEnd(); ++sit) {
-    StateSet closure;
-    computeEpsilonClosure(*sit, closure);
-    initialClosure.InsertSet(closure);
+    computeEpsilonClosure(*sit, initClosure);
   }
-  
-  // 将初始闭包加入状态映射
-  if (!initialClosure.Empty()) {
-    closureToStateMap[initialClosure] = stateCounter++;
-    Idx newStateIdx = closureToStateMap[initialClosure];
-    pResGen->InsState(std::to_string(newStateIdx));
-    pResGen->SetInitState(newStateIdx);
+  for (StateSet::Iterator sit = initClosure.Begin(); sit != initClosure.End(); ++sit) {
+    pResGen->SetInitState(stateMap[*sit]);
   }
 
-  // 递归处理所有状态的epsilon闭包
-  std::stack<StateSet> todoClosures;
-  todoClosures.push(initialClosure);
-  std::set<StateSet> processedClosures;
-  processedClosures.insert(initialClosure);
-  
-  while (!todoClosures.empty()) {
-    StateSet currentClosure = todoClosures.top();
-    todoClosures.pop();
-    Idx currentStateIdx = closureToStateMap[currentClosure];
-    
-    // 检查是否需要设置为标记状态
-    for (StateSet::Iterator sit = currentClosure.Begin(); sit != currentClosure.End(); ++sit) {
-      if (rGen.ExistsMarkedState(*sit)) {
-        pResGen->SetMarkedState(currentStateIdx);
-        break;
-      }
-    }
-    
-    // 对每个可观测事件，找出所有可能的后继epsilon闭包
-    for (EventSet::Iterator eit = newAlphabet.Begin(); eit != newAlphabet.End(); ++eit) {
-      Idx event = *eit;
-      
-      // 收集一步后能到达的所有状态
-      StateSet directSuccessors;
-      for (StateSet::Iterator sit = currentClosure.Begin(); sit != currentClosure.End(); ++sit) {
-        for (TransSet::Iterator tit = rGen.TransRelBegin(*sit); tit != rGen.TransRelEnd(*sit); ++tit) {
-          if (tit->Ev == event) {
-            directSuccessors.Insert(tit->X2);
-          }
-        }
-      }
-      
-      // 对每个直接后继状态，计算其epsilon闭包
-      for (StateSet::Iterator sit = directSuccessors.Begin(); sit != directSuccessors.End(); ++sit) {
-        StateSet nextClosure;
-        computeEpsilonClosure(*sit, nextClosure);
-        
-        // 检查这个闭包是否已经处理过
-        if (closureToStateMap.find(nextClosure) == closureToStateMap.end()) {
-          // 创建新状态
-          Idx newStateIdx = stateCounter++;
-          closureToStateMap[nextClosure] = newStateIdx;
-          pResGen->InsState(std::to_string(newStateIdx));
-          
-          // 如果这个闭包还没有被加入处理队列，则加入
-          if (processedClosures.find(nextClosure) == processedClosures.end()) {
-            todoClosures.push(nextClosure);
-            processedClosures.insert(nextClosure);
-          }
-        }
-        
-        // 添加转移关系
-        pResGen->SetTransition(currentStateIdx, event, closureToStateMap[nextClosure]);
-      }
-    }
+  for (StateSet::Iterator mit = rGen.MarkedStatesBegin(); mit != rGen.MarkedStatesEnd(); ++mit) {
+    pResGen->SetMarkedState(stateMap[*mit]);
   }
-  
-  // 处理Rabin对
-  const AttributeRabinPairs& originalRabinPairs = rGen.RabinPairs();
-  if (originalRabinPairs.Size() > 0) {
-    AttributeRabinPairs newRabinPairs;
-    
-    for (size_t i = 0; i < originalRabinPairs.Size(); ++i) {
-      const auto& pair = originalRabinPairs.At(i);
-      StateSet rejectSet; // R集 (拒绝集)
-      StateSet acceptSet; // I集 (接受集)
-      
-      // 对每个新状态进行处理
-      for (const auto& entry : closureToStateMap) {
-        const StateSet& closure = entry.first;
-        Idx stateIdx = entry.second;
-        
-        // 检查是否与R集(拒绝集)有交集
-        bool hasRejectIntersection = false;
-        for (StateSet::Iterator rit = pair.first.Begin(); rit != pair.first.End(); ++rit) {
-          if (closure.Exists(*rit)) {
-            hasRejectIntersection = true;
-            break;
-          }
-        }
-        if (hasRejectIntersection) {
-          rejectSet.Insert(stateIdx);
-        }
-        
-        // 检查是否与I集(接受集)有交集
-        bool hasAcceptIntersection = false;
-        for (StateSet::Iterator ait = pair.second.Begin(); ait != pair.second.End(); ++ait) {
-          if (closure.Exists(*ait)) {
-            hasAcceptIntersection = true;
-            break;
-          }
-        }
-        if (hasAcceptIntersection) {
-          acceptSet.Insert(stateIdx);
+
+  for (StateSet::Iterator sit = rGen.StatesBegin(); sit != rGen.StatesEnd(); ++sit) {
+    Idx origState = *sit;
+    Idx newState = stateMap[origState];
+    for (EventSet::Iterator eit = newAlphabet.Begin(); eit != newAlphabet.End(); ++eit) {
+      Idx eventIdx = *eit;
+      StateSet nextClosure;
+      for (TransSet::Iterator tit = rGen.TransRelBegin(origState); tit != rGen.TransRelEnd(origState); ++tit) {
+        if (tit->Ev == eventIdx) {
+          computeEpsilonClosure(tit->X2, nextClosure);
         }
       }
-      
-      newRabinPairs.AddRabinPair(rejectSet, acceptSet);
+      for (StateSet::Iterator nit = nextClosure.Begin(); nit != nextClosure.End(); ++nit) {
+        pResGen->SetTransition(newState, eventIdx, stateMap[*nit]);
+      }
     }
-    
-    pResGen->SetRabinPairs(newRabinPairs);
   }
 
   if (pResGen != &rResGen) {
     rResGen = *pResGen;
     delete pResGen;
   }
-  
+
+  const AttributeRabinPairs& plantRabinPairs = rGen.RabinPairs();
+  rResGen.SetRabinPairs(plantRabinPairs); // 直接传递，保持 R=拒绝, I=接受
   FD_DF("RabinProjectND(...): done");
 }
 
@@ -923,7 +835,7 @@ void PseudoDet(const MyRabinGenerator& rRabinInput, MyRabinGenerator& rRabinOutp
  int main() {
    System Plant;
    Plant.Read("data/safratest_Plant2.gen");
-   Plant.DWrite();
+ 
    EventSet contevents;
    contevents.Insert("a");
    Plant.SetControllable(contevents);
@@ -940,7 +852,7 @@ void PseudoDet(const MyRabinGenerator& rRabinInput, MyRabinGenerator& rRabinOutp
  
    System Spec;
    Spec.Read("data/safratest_Spec2.gen");
-   
+ 
    AttributeRabinPairs specRP;
    StateSet speclSet1, specuSet1;
    speclSet1.Insert(2);

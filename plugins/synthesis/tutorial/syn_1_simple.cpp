@@ -75,10 +75,17 @@ int main() {
   supervisor.Name("simple machines supervisor");
   supervisor.Write("tmp_supervisor12.gen");
 
+
+  System G_o;
+  EventSet obsevents;
+  obsevents.Insert("alpha_1");
+  obsevents.Insert("alpha_2");
+  Project(supervisor,obsevents,G_o);
   // Report to console
   std::cout << "################################\n";
   std::cout << "# tutorial, supervisor\n";
   supervisor.DWrite();
+  G_o.DWrite();
   std::cout << "################################\n";
 
   return 0;

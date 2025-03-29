@@ -1,0 +1,193 @@
+\documentclass[
+a4paper, 
+12pt,
+]{article}
+
+\usepackage{parskip}
+\usepackage{amsmath}
+\usepackage{listings} 
+
+\begin{document}
+    \section{Overview}
+    This is the documentation of Changming Yang's implementation of his master thesis on the topic "Effective Control Synthesis under Partial observation" \\
+    the whole work is based on the cpp library libFAUDES, and is also implemented in cpp
+
+    \section{Problem Definition}
+    According to the article, the goal is to design a complete, deadlock-free suprevisor V for plant G such that 
+    
+    \begin{equation}
+        S(V/G)\subseteq E
+    \end{equation}
+
+    where the plant is designed to be a Rabin Automata with a trivial acceptance condition, which can be simplfied into a Buechi automata as follow:
+    
+    \begin{equation}
+        \begin{split}
+            G&=(\Sigma, X_G, \delta _G , x_{0G} ,(X_G,X_G))  \\
+            G&=(\Sigma, X_G, \delta _G , x_{0G})
+        \end{split}
+    \end{equation}
+
+    and the Specification is a Rabin Automata with a single acceptance condition:
+
+    \begin{equation}
+        E=(\Sigma, X_E, \delta _E , x_{0E} ,(R_E,I_E))
+    \end{equation}
+
+    \section{Operation}
+    \subsection{Define RabinPairs}
+    Because libfaudes has a template of Generator, I can construct a Rabin Automata by only defining a Rabin Acceptance Condition (one single rabin pair is utilised in our case), in the practical construction, multiple RabinPairs can be inserted. \\
+
+    Constructors and Destructors:
+\[
+\texttt{class AttributeRabinPairs : public AttributeVoid } \\
+\]
+
+Default Constructor:
+\[
+    \texttt{AttributeRabinPairs()}
+\]
+Copy Constructor:
+\[
+    \texttt{AttributeRabinPairs(const AttributeRabinPairs\& rOther)}
+\]
+Destructor:
+\[
+    \texttt{virtual ~AttributeRabinPairs()}
+\]
+Assignment operator:
+\[
+    \texttt{AttributeRabinPairs\& operator=(const AttributeRabinPairs\& rOther)}
+\]
+Equality comparison operator:
+\[
+    \texttt{bool operator==(const AttributeRabinPairs\& rOther) const}
+\]
+Inequality comparison operator:
+\[
+    \texttt{bool operator!=(const AttributeRabinPairs\& rOther) const}
+\]
+    
+where the Rabin Acceptance condition is defined with: \\
+$Inf(\pi)\bigcap R \ \neq \emptyset$, There exists at least one element in R-set can be infinitely visited.\\
+$Inf(\pi)\bigcap I=\emptyset$, All the elements in R-set are finitely visited.\\
+
+Add a Rabin pair of R-set and I-set:
+\[
+    \texttt{void AddRabinPair(const StateSet\& rRSet, const StateSet\& rISet)}
+\]
+Set Rabin pairs attribute for a Generator:
+\[
+    \texttt{void SetRabinPairsAttribute(Generator\& rGen, const AttributeRabinPairs\& rAttr)}
+\]
+Get Rabin pairs attribute from a Generator:
+\[
+    \texttt{AttributeRabinPairs GetRabinPairsAttribute(const Generator\& rGen)}
+\]
+Write Generator to console, including Rabin pairs:
+\[
+    \texttt{void CustomDWrite(const Generator\& rGen)}
+\]
+
+
+\subsection{Build Controlled System}
+Before construct a Controlled System, a control pattern $\mathbf{C}$ must be designed by extending the alphabet $\varSigma $, then a Controlled System with a trivial Acceptance condition can be designed as below, furthermore, the Specification is also extended with the same alphabet.
+
+\begin{equation}
+    G_C=(\Sigma\times C, X_G, \delta _{GC} , x_{0G}) 
+\end{equation}
+\begin{equation}
+    E_C=(\Sigma\times C, X_E, \delta _{EC} , x_{0E},(R_{EC},I_{EC})) 
+\end{equation}
+
+
+
+Apply control patterns to a Generator, preserving Rabin pairs:
+$$
+\begin{array}{l}
+\verb|void ApplyControlPattern(const Generator& rPlantGen, const EventSet&|\\
+\verb|rControllableEvents, Generator& rControlledGen)|\\ 
+\verb|   @rPlantGen: The plant Generator  |\\
+\verb|   @rControllableEvents: Set of controllable events  |\\
+\verb|   @rControlledGen: Output controlled Generator  |\\
+\end{array}
+$$
+
+\subsection{Compute $A_C$}
+
+$A_C$ is the Product of controlled system and Specification $\mathbf{G_C}\times\mathbf{E_C}$
+
+\begin{equation}
+    A_C=(\Sigma\times C, X_G \times X_E, \delta _c , (x_{0G},x_{0E}) ,(R_c,I_c))
+\end{equation}
+one thing need to be take care is, the Rabin Pairs result of a universal Product of two Rabin Automata should be:
+\begin{equation}
+    \begin{split}
+        R_c&=R_1 \times X_2 \cup  X_1 \times R_2 \\
+        I_c&=I_1 \times X_2 \cup  X_1 \times I_2 \\
+    \end{split}
+\end{equation}
+In our case, since there is not a $R_1$ and $I_1$, so the final rabin pair can be simplfied to:
+\begin{equation}
+    \begin{split}
+        R_c&= X_1 \times R_2  =X_G \times R_E\\
+        I_c&= X_1 \times I_2  =X_G \times I_E\\
+    \end{split}
+\end{equation}
+
+To simplfy the code, I use the function $Product(Plant,Specification)$ from libFAUDES to compute the product, return a new system GC; Seperately compute product of Rabin pairs from two Generators, then insert the new RabinPairs into GC:
+
+\[
+Product(Plant,Specification,ompositionMap,GC)
+\]
+
+$$
+\begin{array}{l}
+\verb|void ProductRabinPair(const Generator& rPlant, const Generator& rSpec,|\\ 
+\verb|const std::map<std::pair<Idx, Idx>, Idx>& rCompositionMap, Generator& GC)|\\
+\verb|  @rPlant: First Generator|\\
+\verb|  @rSpec: Second Generator|\\
+\verb|  @rCompositionMap: Mapping from state pairs to product states|\\
+\verb|  @GC: Output product Generator|\\
+\end{array}
+$$
+
+\subsection{Compute the Projection without determinization $A_o$}
+
+The natural Projection is used to simplfy the Observation Mask, $RabinProjectNonDet()$ is imitated based on the function $ProjectNonDet()$ from libFAUDES to compute the Projection \textbf{without} determinization, I will later use another algorithm to  determinize.\\
+\begin{equation}
+    A_o=(\Sigma\times C, X_G \times X_E, \delta _o , (x_{0G},x_{0E}) ,(R_c,I_c))
+\end{equation}
+$$
+\begin{array}{l}
+\verb|void RabinProjectNonDet(const Generator& rGen, const EventSet& |\\ 
+\verb|rProjectAlphabet, rProjectAlphabet,Generator& rResGen)|\\
+\verb|  @rGen: Input Generator|\\
+\verb|  @rProjectAlphabet: Alphabet to project onto|\\
+\verb|  @rResGen: Output projected Generator|\\
+\end{array}
+$$
+
+\subsection{PseudoDeterminization}
+
+TODO
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\end{document}

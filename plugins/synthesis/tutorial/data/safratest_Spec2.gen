@@ -1,5 +1,5 @@
 <Generator>
-"two place buffer"
+Spec
 
 <Alphabet>
 "a" "b"
@@ -21,7 +21,7 @@
 </InitStates>
 
 <MarkedStates>
-"E" 
+
 </MarkedStates>
 
 

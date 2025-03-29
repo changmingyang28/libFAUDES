@@ -1,5 +1,5 @@
 <Generator>
-"simplify model of the simplemachine || simplemachine"
+Plant
 <Alphabet>
 "a" "b" 
 </Alphabet>
@@ -16,6 +16,7 @@
 "q2" "b"  "q2"
 "q2" "a"  "q2"
 "q0" "a"  "q0"
+"q2" "b"  "q0"
 
 
 </TransRel>
@@ -25,7 +26,7 @@
 </InitStates>
 
 <MarkedStates>
-"q0" 
+
 </MarkedStates>
 
 
