@@ -40,7 +40,7 @@ a4paper,
 
     Constructors and Destructors:
 \[
-\texttt{class AttributeRabinPairs : public AttributeVoid } \\
+\texttt{class AttributeRabinPairs : public AttributeVoid {}} \\
 \]
 
 Default Constructor:
@@ -169,8 +169,65 @@ $$
 $$
 
 \subsection{PseudoDeterminization}
+We can now construct a deterministic automaton accepting a language having the
+same $\pi_\epsilon $ -projection as $R(A_v)$ by adapting the construction of the article "A. Emerson and C. S. Jutla, On simultaneously determinizing and complementing $\omega$-
+automata"
 
-TODO
+$$
+\begin{array}{l}
+\verb|struct TreeNode { |\\ 
+\verb|  StateSet stateLabel;           // Set of states from the original automaton|\\
+\verb|  std::set<NodeIdx> aSet;        // A-set|\\
+\verb|  std::set<NodeIdx> rSet;        // R-set|\\
+\verb|  std::vector<NodeIdx> children;} // child node|\\
+\verb|  enum Color { WHITE, RED, GREEN } color;  //Node color|\\
+\end{array}
+$$
+
+$$
+\begin{array}{l}
+\verb|class LabeledTree {|\\ 
+\verb|  NodeIdx createNode() {} |\\
+\verb|  void deleteNode(NodeIdx nodeId) {}  \\Methods for node manipulation}|\\
+\end{array}
+$$
+
+\textbf{Main Algorithm Steps}
+
+\textbf{1.Initialization}
+
+Retrieves Rabin pairs from the input Generator\\
+Creates an initial tree with root node containing the initial state\\
+
+\textbf{2.State Processing Loop}
+
+Uses a queue to process pending states
+For each state, processes all possible event transitions
+
+\textbf{3.Tree Transformation Rules (9 steps)}
+
+Step 1: Colors all nodes white\\
+Step 2: Updates state labels based on transitions\\
+Step 3: Creates new nodes for potential acceptance violations\\
+Step 4: Maintains state disjointness between sibling nodes\\
+Step 5: Removes nodes with empty state labels\\
+Step 6: Detects "red breakpoints" (state label equals union of children's labels)\\
+Step 7: Updates A-sets and R-sets\\
+Step 8: Handles green coloring (when A-set is empty and node isn't red)\\
+Step 9: Maintains tracking of red nodes\\
+
+\textbf{4.Tree Signature Computation and State Mapping}
+
+Computes signatures to detect previously encountered tree structures\\
+Maps signatures to existing states or creates new ones\\
+
+\textbf{5.Rabin Pair Construction}
+
+Creates Rabin pairs for the output Generator based on node colors\\
+Red nodes correspond to R-sets, green nodes to I-sets\\
+
+
+
 
 
 
