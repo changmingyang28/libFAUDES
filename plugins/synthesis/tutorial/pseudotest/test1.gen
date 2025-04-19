@@ -1,5 +1,6 @@
 <Generator>
-Plant
+
+%{1,2}{3}
 <Alphabet>
 "a" "b" 
 </Alphabet>
@@ -16,7 +17,6 @@ Plant
 "q2" "b"  "q2"
 "q2" "a"  "q2"
 "q0" "a"  "q0"
-
 
 </TransRel>
 

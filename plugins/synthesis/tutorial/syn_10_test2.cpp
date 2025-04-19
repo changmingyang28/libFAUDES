@@ -737,9 +737,9 @@ if(inputRabinPairs.Size() > 0) {
           nodeChildrenCount++;
           totalChildrenCreated++;
           
-          std::cout << "Debug: Created new child " << newChild 
-                    << " for violations with label " << outsideI.ToString() 
-                    << " (total: " << totalChildrenCreated << ")" << std::endl;
+          // std::cout << "Debug: Created new child " << newChild 
+          //           << " for violations with label " << outsideI.ToString() 
+          //           << " (total: " << totalChildrenCreated << ")" << std::endl;
         }
       }
     }
@@ -984,8 +984,9 @@ if(inputRabinPairs.Size() > 0) {
 }
 
 }
- 
 
+
+/*
 int main() {
 
   // Compose plant dynamics from two very simple machines 
@@ -1067,3 +1068,28 @@ int main() {
   CustomDWrite(AO);
   return 0;
 }
+*/
+
+//PseudoTest
+  int main(){
+ 
+  //case 2
+  System NRA; 
+  NRA.Read("pseudotest/test5.gen");
+
+  AttributeRabinPairs rabinPairs;
+  StateSet R, I;
+
+  R.Insert(3);    
+  I.Insert(1);  
+  I.Insert(2);   
+  rabinPairs.AddRabinPair(R, I);
+  SetRabinPairsAttribute(NRA, rabinPairs);
+  CustomDWrite(NRA);
+  
+  System DRA;
+  PseudoDet(NRA, DRA);
+  CustomDWrite(DRA);
+
+  return 0;
+  }

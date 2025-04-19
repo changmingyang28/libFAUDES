@@ -1,27 +1,25 @@
 <Generator>
-Plant
+
+% {"t2"},{"t0","t1"}
 <Alphabet>
-"a" "b" 
+"a" "b"
 </Alphabet>
 
 <States>
-"q0" "q1" "q2"
+"t0" "t1" "t2"
 </States>
 
 <TransRel>
-"q0" "b"  "q1"
-"q0" "a"  "q2"
-"q1" "b"  "q1"
-"q1" "a"  "q1"
-"q2" "b"  "q2"
-"q2" "a"  "q2"
-"q0" "a"  "q0"
-
-
+"t0" "a" "t0"
+"t0" "a" "t1"
+"t1" "b" "t2"
+"t2" "a" "t1"
+"t2" "b" "t0"
+"t1" "a" "t2"
 </TransRel>
 
 <InitStates>
-"q0"
+"t0"
 </InitStates>
 
 <MarkedStates>
