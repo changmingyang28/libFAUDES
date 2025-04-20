@@ -34,8 +34,8 @@ Alternatively, output a log:
 ./syn_10_test2 >output.log
 ```
 
-At present in the 2nd main() function, I'm testing the PseudoDeterminization algorithm,
-to see the whole process, just commit the main() function and de-commit the 1st main()
+At present in the 2nd main() function, I'm testing the PseudoDeterminization algorithm.
+To see the whole process of the article, just de-commit the 1st main()
 ## Documentation
 
 The Documentation of my work is accessible via .../libfaudes/plugins/synthesis/documentation/docu.pdf.
